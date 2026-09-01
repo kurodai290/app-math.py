@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中2社会ゲーム</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🔵 中2社会 一問一答</h2>
+        
+        <div id="game-view">
+            <p>この説明に合う用語を入力してね（漢字・ひらがな）：</p>
+            <div id="progress" style="font-weight: bold; color: #555;"></div>
+            <div id="question" class="word-box" style="font-size: 1.3em;">読み込み中...</div>
+            <input type="text" id="answer-input" class="input-area" placeholder="答えを入力" autofocus autocomplete="off">
+            <div id="result" class="result"></div>
+        </div>
+        
+        <a href="../social.html" class="btn back-btn">戻る</a>
+    </div>
+
+    <script>
+        const quizList = [
+            { question: "聖徳太子が定めた、家柄にとらわれず能力のある人を役人に登用する制度は？", answer: "冠位十二階" },
+            { question: "701年に唐の仕組みにならって作られた、日本最初の本格的な法律を何というか？", answer: "大宝律令" },
+            { question: "平安時代に藤原氏が行った、娘を天皇のきさきにして権力を握る政治を何というか？", answer: "摂関政治" },
+            { question: "平安時代の末期に、武士として初めて太政大臣になり実権を握った人物は？", answer: "平清盛" },
+            { question: "1192年、鎌倉幕府を開いて征夷大将軍になった武将は誰か？", answer: "源頼朝" },
+            { question: "鎌倉時代に2度にわたって日本に攻めてきた、中国の大帝国の軍勢を何というか？", answer: "元軍" },
+            { question: "室町幕府の3代将軍で、京都に金閣（鹿苑寺）を建てた人物は誰か？", answer: "足利義満" },
+            { question: "戦国時代に織田信長が、キリスト教の保護や関所の廃止とともに進めた商業政策は？", answer: "楽市楽座" },
+            { question: "豊臣秀吉が全国の田畑の広さや土地のよしあしを調べ、収穫量を米の量で表した政策は？", answer: "太閤検地" },
+            { question: "豊臣秀吉が農民から武器を取り上げ、一揆を防ぐとともに兵農分離を進めた政策は？", answer: "刀狩" },
+            { question: "江戸幕府がキリスト教の禁止を徹底するため、庶民をいずれかの寺に所属させた制度は？", answer: "寺請制度" },
+            { question: "江戸幕府が大名たちの経済力を削ぐため、1年おきに江戸と領地を往復させた制度は？", answer: "参勤交代" },
+            { question: "江戸時代、幕府がキリシタンを発見するために、キリストやマリアの像を踏ませた儀式は？", answer: "絵踏" },
+            { question: "江戸幕府の5代将軍で、生類憐みの令を出して極端な動物愛護を強制した人物は誰か？", answer: "徳川綱吉" },
+            { question: "江戸幕府の8代将軍で、新田開発や公事方御定書を定めるなどの「享保の改革」を行った人物は？", answer: "徳川吉宗" }
+        ];
+
+        let currentQuiz = {}; let questionCount = 0; let correctCount = 0; const MAX_QUESTIONS = 10;
+
+        function nextQuestion() {
+            if (questionCount >= MAX_QUESTIONS) { showResultScreen(); return; }
+            questionCount++;
+            const randomIndex = Math.floor(Math.random() * quizList.length);
+            currentQuiz = quizList[randomIndex];
+            
+            document.getElementById('progress').innerText = `${questionCount} / ${MAX_QUESTIONS} 問目`;
+            document.getElementById('question').innerText = currentQuiz.question;
+            document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('result').innerText = "";
+            document.getElementById('answer-input').focus();
+        }
+
+        function showResultScreen() {
+            document.getElementById('game-view').innerHTML = `
+                <h3 style="font-size: 1.5em; color: #ff9800;">🎉 テスト終了！</h3>
+                <div class="word-box" style="font-size: 1.8em;">結果：${correctCount} / ${MAX_QUESTIONS} 問正解！</div>
+                <button onclick="location.reload()" class="btn" style="background-color: #ff5722; border: none; width: 100%; cursor: pointer;">もう一度挑戦する</button>
+            `;
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userAnswer = this.value.trim();
+                const resultDiv = document.getElementById('result');
+                this.disabled = true;
+                
+                if (userAnswer === currentQuiz.answer) {
+                    resultDiv.style.color = "green"; resultDiv.innerText = "⭕ 正解！"; correctCount++;
+                } else {
+                    resultDiv.style.color = "red"; resultDiv.innerText = `❌ 不正解！正解は [ ${currentQuiz.answer} ]`;
+                }
+                setTimeout(nextQuestion, 1500);
+            }
+        });
+        nextQuestion();
+    </script>
+</body>
+</html>
