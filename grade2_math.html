@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中2数学計算ゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🔵 中2数学（式の代入計算）</h2>
+        
+        <div id="game-view">
+            <p>計算の答えを半角数字で入力してね：</p>
+            <div id="progress" style="font-weight: bold; color: #555;"></div>
+            <div id="question" class="word-box" style="font-size: 1.5em;">読み込み中...</div>
+            <input type="text" id="answer-input" class="input-area" placeholder="答えを入力" autofocus autocomplete="off">
+            <div id="result" class="result"></div>
+        </div>
+        
+        <a href="math.html" class="btn back-btn">戻る</a>
+    </div>
+
+    <script>
+        let correctAnswer = 0;
+        let questionCount = 0;
+        let correctCount = 0;
+        const MAX_QUESTIONS = 10;
+
+        function makeQuestion() {
+            // x と y の値をランダム決定（-5 から 5）
+            let x = 0; let y = 0;
+            while(x === 0) x = Math.floor(Math.random() * 11) - 5;
+            while(y === 0) y = Math.floor(Math.random() * 11) - 5;
+
+            // 係数をランダム決定（2 から 5）
+            const a = Math.floor(Math.random() * 4) + 2;
+            const b = Math.floor(Math.random() * 4) + 2;
+
+            // 足し算か引き算か
+            const isPlus = Math.random() > 0.5;
+            if (isPlus) {
+                correctAnswer = (a * x) + (b * y);
+                return `x=${x}, y=${y} のとき\n${a}x + ${b}y = ?`;
+            } else {
+                correctAnswer = (a * x) - (b * y);
+                return `x=${x}, y=${y} のとき\n${a}x - ${b}y = ?`;
+            }
+        }
+
+        function nextQuestion() {
+            if (questionCount >= MAX_QUESTIONS) { showResultScreen(); return; }
+            questionCount++;
+            document.getElementById('progress').innerText = `${questionCount} / ${MAX_QUESTIONS} 問目`;
+            // 改行(\n)を画面上で有効にするため、innerTextを使用
+            document.getElementById('question').innerText = makeQuestion();
+            document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('result').innerText = "";
+            document.getElementById('answer-input').focus();
+        }
+
+        function showResultScreen() {
+            document.getElementById('game-view').innerHTML = `
+                <h3 style="font-size: 1.5em; color: #ff9800;">🎉 テスト終了！</h3>
+                <div class="word-box" style="font-size: 1.8em;">結果：${correctCount} / ${MAX_QUESTIONS} 問正解！</div>
+                <p style="font-weight: bold; margin-bottom: 20px;">${correctCount === 10 ? '完璧です！💯' : 'よく頑張りました！👍'}</p>
+                <button onclick="location.reload()" class="btn" style="background-color: #ff5722; border: none; width: 100%; cursor: pointer;">もう一度挑戦</button>
+            `;
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userAnswer = parseInt(this.value.trim(), 10);
+                const resultDiv = document.getElementById('result');
+                this.disabled = true;
+                if (userAnswer === correctAnswer) {
+                    resultDiv.style.color = "green"; resultDiv.innerText = "⭕ 正解！"; correctCount++;
+                } else {
+                    resultDiv.style.color = "red"; resultDiv.innerText = `❌ 不正解！正解は [ ${correctAnswer} ]`;
+                }
+                setTimeout(nextQuestion, 1500);
+            }
+        });
+        nextQuestion();
+    </script>
+</body>
+</html>
