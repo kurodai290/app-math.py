@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国語漢字テスト</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- 💡 同じフォルダ内の words.js（漢字データ）を読み込みます -->
+    <script src="words.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 💡 学年に合わせて「🔵 中2（小3・4年漢字）」「🟣 中3（小5・6年漢字）」に変えてね -->
+        <h2>🟢 中1国語（小1・2年漢字）</h2>
+        
+        <div id="game-view">
+            <p>答えを「ひらがな」で入力してね：</p>
+            <div id="progress" style="font-weight: bold; color: #555;"></div>
+            <div id="question" class="word-box" style="font-size: 1.3em;">読み込み中...</div>
+            <input type="text" id="answer-input" class="input-area" placeholder="ひらがなで入力" autofocus autocomplete="off">
+            <div id="result" class="result"></div>
+        </div>
+        
+        <a href="../kokugo.html" class="btn back-btn">戻る</a>
+    </div>
+
+    <script>
+        // ⚠️ const quizList = [...] は削除し、words.js から自動読み込みにしました
+        let currentQuiz = {}; 
+        let questionCount = 0; 
+        let correctCount = 0; 
+        const MAX_QUESTIONS = 10; // 1セット10問
+
+        function nextQuestion() {
+            if (questionCount >= MAX_QUESTIONS) { 
+                showResultScreen(); 
+                return; 
+            }
+            questionCount++;
+            const randomIndex = Math.floor(Math.random() * quizList.length);
+            currentQuiz = quizList[randomIndex];
+            
+            document.getElementById('progress').innerText = `${questionCount} / ${MAX_QUESTIONS} 問目`;
+            document.getElementById('question').innerText = currentQuiz.question;
+            document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('result').innerText = "";
+            document.getElementById('answer-input').focus();
+        }
+
+        function showResultScreen() {
+            document.getElementById('game-view').innerHTML = `
+                <h3 style="font-size: 1.5em; color: #ff9800;">🎉 テスト終了！</h3>
+                <div class="word-box" style="font-size: 1.8em;">結果：${correctCount} / ${MAX_QUESTIONS} 問正解！</div>
+                <button onclick="location.reload()" class="btn" style="background-color: #ff5722; border: none; width: 100%; cursor: pointer;">もう一度挑戦する</button>
+            `;
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userAnswer = this.value.trim();
+                const resultDiv = document.getElementById('result');
+                this.disabled = true;
+                
+                if (userAnswer === currentQuiz.answer) {
+                    resultDiv.style.color = "green"; 
+                    resultDiv.innerText = "⭕ 正解！"; 
+                    correctCount++;
+                } else {
+                    resultDiv.style.color = "red"; 
+                    resultDiv.innerText = `❌ 不正解！正解は [ ${currentQuiz.answer} ]`;
+                }
+                setTimeout(nextQuestion, 1500);
+            }
+        });
+        
+        nextQuestion();
+    </script>
+</body>
+</html>
