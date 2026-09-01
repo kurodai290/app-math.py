@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中3理科ゲーム</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🟣 中3理科 一問一答</h2>
+        
+        <div id="game-view">
+            <p>この説明に合う用語を入力してね（漢字・ひらがな）：</p>
+            <div id="progress" style="font-weight: bold; color: #555;"></div>
+            <div id="question" class="word-box" style="font-size: 1.3em;">読み込み中...</div>
+            <input type="text" id="answer-input" class="input-area" placeholder="答えを入力" autofocus autocomplete="off">
+            <div id="result" class="result"></div>
+        </div>
+        
+        <a href="../science.html" class="btn back-btn">戻る</a>
+    </div>
+
+    <script>
+        // 💡 中3理科の重要問題データ（15問からランダムで10問出題）
+        const quizList = [
+            { question: "水に溶けたときに電離して、電流を漏らす物質を何というか？", answer: "電解質" },
+            { question: "原子が電気を帯びたものを何というか？", answer: "イオン" },
+            { question: "酸性の水溶液に共通して含まれるイオンのイオン式は？（カタカナで）", answer: "水素イオン" },
+            { question: "アルカリ性の水溶液に共通して含まれるイオンのイオン式は？（カタカナで）", answer: "水酸化物イオン" },
+            { question: "酸とアルカリが反応して、互いの性質を打ち消し合う反応を何というか？", answer: "中和" },
+            { question: "生物の細胞が分裂して2つに分かれることを何というか？", answer: "細胞分裂" },
+            { question: "生殖細胞が作られるときに行われる、染色体の数が半分になる特別な分裂は？", answer: "減数分裂" },
+            { question: "親の形質が子や孫に伝わる現象を何というか？", answer: "遺伝" },
+            { question: "細胞の核の中にあり、遺伝子が含まれているひも状の物質は？", answer: "染色体" },
+            { question: "物体が一定の時間内に移動した距離を、かかった時間で割ったものを何というか？", answer: "速さ" },
+            { question: "動いている物体が持っているエネルギーを何というか？", answer: "運動エネルギー" },
+            { question: "高いところにある物体が持っているエネルギーを何というか？", answer: "位置エネルギー" },
+            { question: "太陽のように、自ら光を放つ天体を何というか？", answer: "恒星" },
+            { question: "地球が太陽のまわりを1年かけて1周する運動を何というか？", answer: "公転" },
+            { question: "太陽のまわりを公転している、地球などの大きな天体を何というか？", answer: "惑星" }
+        ];
+
+        let currentQuiz = {}; let questionCount = 0; let correctCount = 0; const MAX_QUESTIONS = 10;
+
+        function nextQuestion() {
+            if (questionCount >= MAX_QUESTIONS) { showResultScreen(); return; }
+            questionCount++;
+            const randomIndex = Math.floor(Math.random() * quizList.length);
+            currentQuiz = quizList[randomIndex];
+            
+            document.getElementById('progress').innerText = `${questionCount} / ${MAX_QUESTIONS} 問目`;
+            document.getElementById('question').innerText = currentQuiz.question;
+            document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('result').innerText = "";
+            document.getElementById('answer-input').focus();
+        }
+
+        function showResultScreen() {
+            document.getElementById('game-view').innerHTML = `
+                <h3 style="font-size: 1.5em; color: #ff9800;">🎉 テスト終了！</h3>
+                <div class="word-box" style="font-size: 1.8em;">結果：${correctCount} / ${MAX_QUESTIONS} 問正解！</div>
+                <button onclick="location.reload()" class="btn" style="background-color: #ff5722; border: none; width: 100%; cursor: pointer;">もう一度挑戦する</button>
+            `;
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userAnswer = this.value.trim();
+                const resultDiv = document.getElementById('result');
+                this.disabled = true;
+                
+                if (userAnswer === currentQuiz.answer) {
+                    resultDiv.style.color = "green"; resultDiv.innerText = "⭕ 正解！"; correctCount++;
+                } else {
+                    resultDiv.style.color = "red"; resultDiv.innerText = `❌ 不正解！正解は [ ${currentQuiz.answer} ]`;
+                }
+                setTimeout(nextQuestion, 1500);
+            }
+        });
+        nextQuestion();
+    </script>
+</body>
+</html>
