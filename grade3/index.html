@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中3英単語ゲーム</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🟣 中3英単語テスト</h2>
+        <div id="game-view">
+            <p>この意味になる英単語を入力してね：</p>
+            <div id="question" class="word-box">読み込み中...</div>
+            <input type="text" id="answer-input" class="input-area" placeholder="ここに英語を入力" autofocus autocomplete="off">
+            <div id="result" class="result"></div>
+        </div>
+        <a href="../index.html" class="btn back-btn">戻る</a>
+    </div>
+
+    <script>
+        // 中3用の仮データ（後で本格的に入れ替えます）
+        const wordList = [
+            { english: "experience", japanese: "経験" },
+            { english: "environment", japanese: "環境" },
+            { english: "government", japanese: "政府" },
+            { english: "population", japanese: "人口" },
+            { english: "international", japanese: "国際的な" }
+        ];
+
+        let currentWord = {};
+
+        function nextQuestion() {
+            const randomIndex = Math.floor(Math.random() * wordList.length);
+            currentWord = wordList[randomIndex];
+            document.getElementById('question').innerText = currentWord.japanese;
+            document.getElementById('answer-input').value = "";
+            document.getElementById('result').innerText = "";
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userAnswer = this.value.trim().toLowerCase();
+                const resultDiv = document.getElementById('result');
+                
+                if (userAnswer === currentWord.english.toLowerCase()) {
+                    resultDiv.style.color = "green";
+                    resultDiv.innerText = "⭕ 正解！";
+                    setTimeout(nextQuestion, 1000);
+                } else {
+                    resultDiv.style.color = "red";
+                    resultDiv.innerText = `❌ 違うよ！正解は [ ${currentWord.english} ]`;
+                }
+            }
+        });
+
+        nextQuestion();
+    </script>
+</body>
+</html>
