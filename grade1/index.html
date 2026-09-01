@@ -3,58 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中1英単語ゲーム</title>
+    <title>中学英単語ゲーム</title>
     <link rel="stylesheet" href="../style.css">
+    <!-- 単語データを読み込む -->
+    <script src="words.js"></script>
 </head>
 <body>
     <div class="container">
+        <!-- 💡 画面上の見出し。中2なら「🔵 中2」、中3なら「🟣 中3」に書き換えてください -->
         <h2>🟢 中1英単語テスト</h2>
+        
         <div id="game-view">
             <p>この意味になる英単語を入力してね：</p>
+            <!-- 💡 「1/10問目」のように、いま何問目かが表示されます -->
+            <div id="progress" style="font-weight: bold; color: #555;"></div>
+            
             <div id="question" class="word-box">読み込み中...</div>
             <input type="text" id="answer-input" class="input-area" placeholder="ここに英語を入力" autofocus autocomplete="off">
             <div id="result" class="result"></div>
         </div>
-        <a href="../index.html" class="btn back-btn">戻る</a>
+        
+        <!-- トップに戻るボタン（ゲームの途中でも戻れます） -->
+        <a href="../index.html" class="btn back-btn">途中でやめて戻る</a>
     </div>
 
     <script>
-        // 単語データ（本来は別ファイルにすると管理が楽ですが、まずは1ファイルで動かします）
-        const wordList = [
-            { english: "apple", japanese: "りんご" },
-            { english: "desk", japanese: "机" },
-            { english: "school", japanese: "学校" },
-            { english: "teacher", japanese: "先生" },
-            { english: "studying", japanese: "勉強すること" }
-        ];
-
         let currentWord = {};
+        let questionCount = 0;   // いま何問目か
+        let correctCount = 0;    // 正解数
+        const MAX_QUESTIONS = 10; // 1セットの合計問題数
 
+        // 💡 次の問題に進む関数（わざわざ戻らず、自動で呼ばれます）
         function nextQuestion() {
+            // 10問解き終わったら、自動で結果画面に切り替える
+            if (questionCount >= MAX_QUESTIONS) {
+                showResultScreen();
+                return;
+            }
+
+            questionCount++; // カウントを1増やす
+            
+            // words.js からランダムに単語を1つ選ぶ
             const randomIndex = Math.floor(Math.random() * wordList.length);
             currentWord = wordList[randomIndex];
+            
+            // 画面の表示を次の問題に更新
+            document.getElementById('progress').innerText = `${questionCount} / ${MAX_QUESTIONS} 問目`;
             document.getElementById('question').innerText = currentWord.japanese;
             document.getElementById('answer-input').value = "";
+            document.getElementById('answer-input').disabled = false; // 入力欄を復活
             document.getElementById('result').innerText = "";
+            document.getElementById('answer-input').focus(); // 自動で入力欄にカーソルを合わせる
         }
 
+        // 💡 10問終わったときに、画面を書き換えて結果を発表する関数
+        function showResultScreen() {
+            const gameView = document.getElementById('game-view');
+            
+            gameView.innerHTML = `
+                <h3 style="font-size: 1.5em; color: #ff9800;">🎉 テスト終了！</h3>
+                <div class="word-box" style="font-size: 1.8em; color: #333;">
+                    結果：${correctCount} / ${MAX_QUESTIONS} 問正解！
+                </div>
+                <p style="font-weight: bold; margin-bottom: 20px;">${getFeedbackMessage(correctCount)}</p>
+                <button onclick="location.reload()" class="btn" style="background-color: #ff5722; border: none; width: 100%; cursor: pointer;">もう一度挑戦する</button>
+            `;
+        }
+
+        // 得点に応じたメッセージ
+        function getFeedbackMessage(score) {
+            if (score === 10) return "素晴らしい！満点です！💯";
+            if (score >= 8) return "お見事！あともう少しで満点だね！🌟";
+            if (score >= 5) return "ナイスファイト！半分以上正解できたね！👍";
+            return "次はもっと高得点を目指して頑張ろう！💪";
+        }
+
+        // Enterキーが押された時の正誤判定
         document.getElementById('answer-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const userAnswer = this.value.trim().toLowerCase();
                 const resultDiv = document.getElementById('result');
                 
+                // 判定中に文字を入力できないように一時的にロック
+                this.disabled = true;
+                
                 if (userAnswer === currentWord.english.toLowerCase()) {
                     resultDiv.style.color = "green";
                     resultDiv.innerText = "⭕ 正解！";
-                    setTimeout(nextQuestion, 1000); // 1秒後に次の問題へ
+                    correctCount++; // 正解ポイントを追加
                 } else {
                     resultDiv.style.color = "red";
                     resultDiv.innerText = `❌ 違うよ！正解は [ ${currentWord.english} ]`;
                 }
+
+                // 💡 ここがポイント！戻らずに、1.5秒後に自動で次の問題（nextQuestion）に進みます
+                setTimeout(nextQuestion, 1500);
             }
         });
 
-        // 最初の一問目を開始
+        // ページを開いた瞬間に、最初の一問目を開始
         nextQuestion();
     </script>
 </body>
